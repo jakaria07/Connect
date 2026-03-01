@@ -1,0 +1,23 @@
+<Solution>
+    <Configurations>
+        <Platform Name="Any CPU" />
+    </Configurations>
+    <Folder Name="/src/">
+        <Project Path="src\Wafi.Connect.Domain\Wafi.Connect.Domain.csproj" />
+        <Project Path="src\Wafi.Connect.Application\Wafi.Connect.Application.csproj" />
+        <Project Path="src\Wafi.Connect.EntityFrameworkCore\Wafi.Connect.EntityFrameworkCore.csproj" />
+        <Project Path="src\Wafi.Connect.Domain.Shared\Wafi.Connect.Domain.Shared.csproj" />
+        <Project Path="src\Wafi.Connect.Application.Contracts\Wafi.Connect.Application.Contracts.csproj" />
+        <Project Path="src\Wafi.Connect.HttpApi\Wafi.Connect.HttpApi.csproj" />
+        <Project Path="src\Wafi.Connect.HttpApi.Client\Wafi.Connect.HttpApi.Client.csproj" />
+        <Project Path="src\Wafi.Connect.DbMigrator\Wafi.Connect.DbMigrator.csproj" />
+        <Project Path="src\Wafi.Connect.HttpApi.Host\Wafi.Connect.HttpApi.Host.csproj" />
+    </Folder>
+    <Folder Name="/test/">
+        <Project Path="test\Wafi.Connect.Application.Tests\Wafi.Connect.Application.Tests.csproj" />
+        <Project Path="test\Wafi.Connect.EntityFrameworkCore.Tests\Wafi.Connect.EntityFrameworkCore.Tests.csproj" />
+        <Project Path="test\Wafi.Connect.TestBase\Wafi.Connect.TestBase.csproj" />
+        <Project Path="test\Wafi.Connect.Domain.Tests\Wafi.Connect.Domain.Tests.csproj" />
+        <Project Path="test\Wafi.Connect.HttpApi.Client.ConsoleTestApp\Wafi.Connect.HttpApi.Client.ConsoleTestApp.csproj" />
+    </Folder>
+</Solution>
