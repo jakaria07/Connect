@@ -13,6 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using OpenIddict.Validation.AspNetCore;
+using OpenIddict.Validation;
 using OpenIddict.Server.AspNetCore;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Wafi.Connect.EntityFrameworkCore;
@@ -72,6 +73,34 @@ public class ConnectHttpApiHostModule : AbpModule
                 options.AddAudiences("Connect");
                 options.UseLocalServer();
                 options.UseAspNetCore();
+                
+                // Add event handler to process SignalR authentication
+                options.AddEventHandler<OpenIddictValidationEvents.ProcessAuthenticationContext>(builder =>
+                    builder.UseInlineHandler(context =>
+                    {
+                        var accessToken = context.Transaction?.Request?.GetParameter("access_token")?.ToString();
+                        
+                        Microsoft.AspNetCore.Http.HttpRequest? httpRequest = null;
+                        if (context.Transaction != null &&
+                            context.Transaction.Properties.TryGetValue(typeof(Microsoft.AspNetCore.Http.HttpContext).FullName!, out var httpContextObj) &&
+                            httpContextObj is Microsoft.AspNetCore.Http.HttpContext httpContext)
+                        {
+                            httpRequest = httpContext.Request;
+                        }
+
+                        var path = httpRequest?.Path;
+                        
+                        Console.WriteLine($"OpenIddict Validation: Processing request for {path}");
+                        Console.WriteLine($"SignalR Auth Debug: Path={path}, HasAccessToken={!string.IsNullOrEmpty(accessToken)}");
+
+                        if (!string.IsNullOrEmpty(accessToken) && path.HasValue && path.Value.StartsWithSegments("/signalr/chat"))
+                        {
+                            Console.WriteLine($"SignalR Auth Debug: Setting AccessToken for {path}");
+                            context.AccessToken = accessToken;
+                        }
+
+                        return System.Threading.Tasks.ValueTask.CompletedTask;
+                    }));
             });
         });
 
@@ -127,7 +156,10 @@ public class ConnectHttpApiHostModule : AbpModule
 
     private void ConfigureSignalR(ServiceConfigurationContext context)
     {
-        context.Services.AddSignalR();
+        context.Services.AddSignalR(options =>
+        {
+            options.EnableDetailedErrors = true;
+        });
         context.Services.AddTransient<IChatMessageNotifier, SignalRChatMessageNotifier>();
     }
 

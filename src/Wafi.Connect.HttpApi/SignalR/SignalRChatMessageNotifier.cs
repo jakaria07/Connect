@@ -19,6 +19,6 @@ public class SignalRChatMessageNotifier : IChatMessageNotifier
     {
         return _hubContext.Clients
             .Group($"conversation-{conversationId}")
-            .SendAsync("MessageReceived", messageDto, cancellationToken);
+            .SendAsync("MessageReceived", new { conversationId, message = messageDto }, cancellationToken);
     }
 }

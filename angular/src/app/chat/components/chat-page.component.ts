@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, inject, NgZone } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '@abp/ng.core';
 import { Subject, takeUntil } from 'rxjs';
@@ -18,6 +18,8 @@ export class ChatPageComponent implements OnInit, OnDestroy {
   private readonly chatHttp = inject(ChatHttpService);
   private readonly chatSignalr = inject(ChatSignalrService);
   private readonly auth = inject(AuthService);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly zone = inject(NgZone);
 
   conversations: ConversationDto[] = [];
   selectedConversation: ConversationDto | null = null;
@@ -52,15 +54,44 @@ export class ChatPageComponent implements OnInit, OnDestroy {
       this.loading = false;
     }
 
-    this.chatSignalr.messageReceived$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(m => {
-        if (this.selectedConversation && this.chatSignalr.currentConversationId === this.selectedConversation.id) {
-          this.messages = [m, ...this.messages];
-        }
-      });
+    this.setupMessageReceivedSubscription();
 
     await this.chatSignalr.start();
+  }
+
+  private getCurrentUserId(): string | null {
+    try {
+      const token = this.auth.getAccessToken();
+      if (!token) return null;
+      
+      // Parse JWT token to get user ID from 'sub' claim
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.sub || null;
+    } catch {
+      return null;
+    }
+  }
+
+  private setupMessageReceivedSubscription(): void {
+    this.chatSignalr.messageReceived$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(payload => {
+        // Run inside Angular's zone to trigger change detection
+        this.zone.run(() => {
+          // Only process messages for the currently selected conversation
+          if (this.selectedConversation && payload.conversationId === this.selectedConversation.id) {
+            // Check if this message was sent by the current user
+            // If so, don't add it (it's already added from the HTTP response)
+            const currentUserId = this.getCurrentUserId();
+            if (payload.message.senderUserId !== currentUserId) {
+              console.log('Adding received message to UI:', payload.message);
+              this.messages = [payload.message, ...this.messages];
+            } else {
+              console.log('Ignoring own message received via SignalR (already added via HTTP):', payload.message);
+            }
+          }
+        });
+      });
   }
 
   async startConversation(): Promise<void> {
