@@ -27,7 +27,11 @@ public class ConversationAppService : ConnectAppService, IConversationAppService
     public async Task<ConversationDto> CreateConversationAsync(CreateConversationDto input)
     {
         var currentUserId = CurrentUser.Id!.Value;
-        var otherUserId = input.OtherUserId;
+        
+        if (!Guid.TryParse(input.OtherUserId, out var otherUserId))
+        {
+            throw new UserFriendlyException("Invalid user ID format.");
+        }
 
         var otherUser = await _userRepository.GetAsync(otherUserId);
         if (otherUser == null)

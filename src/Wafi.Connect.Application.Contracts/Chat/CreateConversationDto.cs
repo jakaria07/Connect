@@ -6,5 +6,5 @@ namespace Wafi.Connect.Chat;
 public class CreateConversationDto
 {
     [Required]
-    public Guid OtherUserId { get; set; }
+    public string OtherUserId { get; set; }
 }

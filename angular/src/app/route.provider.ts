@@ -17,5 +17,12 @@ function configureRoutes() {
         order: 1,
         layout: eLayoutType.application,
       },
+      {
+        path: '/chat',
+        name: 'Chat',
+        iconClass: 'fas fa-comments',
+        order: 2,
+        layout: eLayoutType.application,
+      },
   ]);
 }

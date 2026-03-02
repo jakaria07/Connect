@@ -7,16 +7,17 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.AspNetCore.Extensions.DependencyInjection;
+using Microsoft.OpenApi.Models;
 using OpenIddict.Validation.AspNetCore;
 using OpenIddict.Server.AspNetCore;
+using Swashbuckle.AspNetCore.SwaggerGen;
 using Wafi.Connect.EntityFrameworkCore;
 using Wafi.Connect.MultiTenancy;
 using Wafi.Connect.HealthChecks;
-using Microsoft.OpenApi.Models;
 using Volo.Abp;
 using Volo.Abp.Studio;
 using Volo.Abp.Account;
@@ -34,13 +35,14 @@ using Volo.Abp.AspNetCore.Mvc.UI.Theme.LeptonXLite;
 using Volo.Abp.AspNetCore.Mvc.UI.Theme.LeptonXLite.Bundling;
 using Microsoft.AspNetCore.Hosting;
 using Volo.Abp.AspNetCore.Serilog;
+using Volo.Abp.Security.Claims;
 using Volo.Abp.Identity;
 using Volo.Abp.OpenIddict;
 using Volo.Abp.Swashbuckle;
 using Volo.Abp.Studio.Client.AspNetCore;
-using Volo.Abp.Security.Claims;
+using Wafi.Connect.Chat;
+using Wafi.Connect.Controllers;
 using Wafi.Connect.SignalR;
-using Microsoft.AspNetCore.Routing;
 
 namespace Wafi.Connect;
 
@@ -126,23 +128,12 @@ public class ConnectHttpApiHostModule : AbpModule
     private void ConfigureSignalR(ServiceConfigurationContext context)
     {
         context.Services.AddSignalR();
-
-        context.Services.Configure<AbpEndpointRouterOptions>(options =>
-        {
-            options.EndpointConfigureActions.Add(endpointContext =>
-            {
-                endpointContext.Endpoints.MapHub<ChatHub>("/signalr/chat");
-            });
-        });
+        context.Services.AddTransient<IChatMessageNotifier, SignalRChatMessageNotifier>();
     }
 
     private void ConfigureAuthentication(ServiceConfigurationContext context)
     {
-        context.Services.ForwardIdentityAuthenticationForBearer(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
-        context.Services.Configure<AbpClaimsPrincipalFactoryOptions>(options =>
-        {
-            options.IsDynamicClaimsEnabled = true;
-        });
+        context.Services.AddAuthentication();
     }
 
     private void ConfigureUrls(IConfiguration configuration)
@@ -292,5 +283,10 @@ public class ConnectHttpApiHostModule : AbpModule
         app.UseAuditing();
         app.UseAbpSerilogEnrichers();
         app.UseConfiguredEndpoints();
+
+        app.UseEndpoints(endpoints =>
+        {
+            endpoints.MapHub<ChatHub>("/signalr/chat");
+        });
     }
 }

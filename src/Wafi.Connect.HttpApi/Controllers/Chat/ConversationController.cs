@@ -17,7 +17,7 @@ public class ConversationController : ConnectController
     }
 
     [HttpPost]
-    public Task<ConversationDto> CreateAsync(CreateConversationDto input)
+    public Task<ConversationDto> CreateAsync([FromBody] CreateConversationDto input)
     {
         return _conversationAppService.CreateConversationAsync(input);
     }

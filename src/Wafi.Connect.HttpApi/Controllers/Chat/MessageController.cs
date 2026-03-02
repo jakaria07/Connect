@@ -16,7 +16,7 @@ public class MessageController : ConnectController
     }
 
     [HttpPost]
-    public Task<MessageDto> SendAsync(SendMessageDto input)
+    public Task<MessageDto> SendAsync([FromBody] SendMessageDto input)
     {
         return _messageAppService.SendMessageAsync(input);
     }

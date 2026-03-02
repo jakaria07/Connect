@@ -15,9 +15,30 @@ export interface MessageDto {
   creationTime: string;
 }
 
+export interface UserLookupDto {
+  id: string;
+  userName: string;
+  displayName: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ChatHttpService {
   private readonly rest = inject(RestService);
+
+  getUsers(): Promise<UserLookupDto[]> {
+    return this.rest.request<any, UserLookupDto[]>({
+      method: 'GET',
+      url: '/api/users',
+    }, { apiName: 'default' }).toPromise();
+  }
+
+  createConversation(otherUserId: string): Promise<ConversationDto> {
+    return this.rest.request<any, ConversationDto>({
+      method: 'POST',
+      url: '/api/chat/conversations',
+      body: { otherUserId },
+    }, { apiName: 'default' }).toPromise();
+  }
 
   getMyConversations(): Promise<ConversationDto[]> {
     return this.rest.request<any, ConversationDto[]>({

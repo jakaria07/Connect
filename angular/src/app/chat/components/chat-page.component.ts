@@ -3,7 +3,7 @@ import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '@abp/ng.core';
 import { Subject, takeUntil } from 'rxjs';
-import { ChatHttpService, ConversationDto, MessageDto } from '../services/chat-http.service';
+import { ChatHttpService, ConversationDto, MessageDto, UserLookupDto } from '../services/chat-http.service';
 import { ChatSignalrService } from '../services/chat-signalr.service';
 
 @Component({
@@ -24,13 +24,32 @@ export class ChatPageComponent implements OnInit, OnDestroy {
   messages: MessageDto[] = [];
   messageText = '';
 
+  users: UserLookupDto[] = [];
+  selectedUserId: string | null = null;
+  loading = false;
+  error: string | null = null;
+
   async ngOnInit(): Promise<void> {
     if (!this.auth.isAuthenticated) {
       this.auth.navigateToLogin();
       return;
     }
 
-    this.conversations = await this.chatHttp.getMyConversations();
+    this.loading = true;
+    this.error = null;
+    try {
+      const [conversations, users] = await Promise.all([
+        this.chatHttp.getMyConversations(),
+        this.chatHttp.getUsers(),
+      ]);
+      this.conversations = conversations;
+      this.users = users;
+      this.selectedUserId = null;
+    } catch (e: any) {
+      this.error = 'Failed to load conversations.';
+    } finally {
+      this.loading = false;
+    }
 
     this.chatSignalr.messageReceived$
       .pipe(takeUntil(this.destroy$))
@@ -43,6 +62,26 @@ export class ChatPageComponent implements OnInit, OnDestroy {
     await this.chatSignalr.start();
   }
 
+  async startConversation(): Promise<void> {
+    const otherUserId = this.selectedUserId;
+    if (!otherUserId) return;
+
+    this.loading = true;
+    this.error = null;
+    try {
+      const conversation = await this.chatHttp.createConversation(otherUserId);
+      const exists = this.conversations.some(c => c.id === conversation.id);
+      if (!exists) {
+        this.conversations = [conversation, ...this.conversations];
+      }
+      await this.selectConversation(conversation);
+    } catch (e: any) {
+      this.error = 'Failed to create conversation. Check the user id and try again.';
+    } finally {
+      this.loading = false;
+    }
+  }
+
   async selectConversation(c: ConversationDto): Promise<void> {
     if (this.selectedConversation?.id === c.id) {
       return;
@@ -53,9 +92,16 @@ export class ChatPageComponent implements OnInit, OnDestroy {
     }
 
     this.selectedConversation = c;
-    this.messages = await this.chatHttp.getMessages(c.id, 0, 50);
-
-    await this.chatSignalr.joinConversation(c.id);
+    this.loading = true;
+    this.error = null;
+    try {
+      this.messages = await this.chatHttp.getMessages(c.id, 0, 50);
+      await this.chatSignalr.joinConversation(c.id);
+    } catch (e: any) {
+      this.error = 'Failed to load messages for this conversation.';
+    } finally {
+      this.loading = false;
+    }
   }
 
   async send(): Promise<void> {
@@ -63,14 +109,24 @@ export class ChatPageComponent implements OnInit, OnDestroy {
     const text = this.messageText.trim();
     if (!text) return;
 
-    const message = await this.chatHttp.sendMessage(this.selectedConversation.id, text);
-    this.messages = [message, ...this.messages];
-    this.messageText = '';
+    this.error = null;
+    try {
+      const message = await this.chatHttp.sendMessage(this.selectedConversation.id, text);
+      this.messages = [message, ...this.messages];
+      this.messageText = '';
+    } catch (e: any) {
+      this.error = 'Failed to send message.';
+    }
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
     void this.chatSignalr.stop();
+  }
+
+  getConversationDisplayName(conversation: ConversationDto): string {
+    const user = this.users.find(u => u.id === conversation.otherUserId);
+    return user ? `${user.displayName} (${user.userName})` : conversation.otherUserId;
   }
 }

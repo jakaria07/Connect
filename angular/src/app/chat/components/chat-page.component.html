@@ -2,11 +2,27 @@
   <div class="chat-sidebar">
     <h3>Conversations</h3>
 
+    <div class="chat-new">
+      <div class="chat-new-title">Start new</div>
+      <select [(ngModel)]="selectedUserId" [disabled]="loading || users.length === 0">
+        <option [value]="null">-- Select a user --</option>
+        <option *ngFor="let u of users" [value]="u.id">{{ u.displayName }} ({{ u.userName }})</option>
+      </select>
+      <button (click)="startConversation()" [disabled]="loading || !selectedUserId">Create</button>
+    </div>
+
+    <div class="chat-status" *ngIf="loading">Loading...</div>
+    <div class="chat-error" *ngIf="error">{{ error }}</div>
+
+    <div class="chat-empty-list" *ngIf="!loading && conversations.length === 0">
+      No conversations yet.
+    </div>
+
     <div class="chat-conversation"
          *ngFor="let c of conversations"
          (click)="selectConversation(c)"
          [class.active]="selectedConversation?.id === c.id">
-      <div class="chat-conversation-title">{{ c.otherUserId }}</div>
+      <div class="chat-conversation-title">{{ getConversationDisplayName(c) }}</div>
       <div class="chat-conversation-meta">{{ c.creationTime | date:'short' }}</div>
     </div>
   </div>
@@ -34,7 +50,7 @@
     </ng-container>
 
     <ng-template #emptyState>
-      <div class="chat-empty">Select a conversation to start chatting.</div>
+      <div class="chat-empty">Select a conversation to start chatting (or create one on the left).</div>
     </ng-template>
   </div>
 </div>
