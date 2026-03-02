@@ -30,14 +30,16 @@
   <div class="chat-main">
     <ng-container *ngIf="selectedConversation; else emptyState">
       <div class="chat-header">
-        <div>Conversation: {{ selectedConversation?.id }}</div>
+        <div>{{ getConversationDisplayName(selectedConversation) }}</div>
       </div>
+
+      <div class="chat-error" *ngIf="messageLoadError">{{ messageLoadError }}</div>
 
       <div class="chat-messages">
         <div class="chat-message" *ngFor="let m of messages">
           <div class="chat-message-meta">
-            <span class="sender">{{ m.senderUserId }}</span>
-            <span class="time">{{ m.creationTime | date:'short' }}</span>
+            <span class="sender">{{ getSenderDisplayName(m.senderUserId) }}</span>
+            <span class="time">{{ toLocalDate(m.creationTime) | date:'short' }}</span>
           </div>
           <div class="chat-message-text">{{ m.text }}</div>
         </div>

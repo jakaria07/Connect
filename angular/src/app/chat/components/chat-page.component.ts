@@ -28,6 +28,7 @@ export class ChatPageComponent implements OnInit, OnDestroy {
   selectedUserId: string | null = null;
   loading = false;
   error: string | null = null;
+  messageLoadError: string | null = null;
 
   async ngOnInit(): Promise<void> {
     if (!this.auth.isAuthenticated) {
@@ -93,12 +94,17 @@ export class ChatPageComponent implements OnInit, OnDestroy {
 
     this.selectedConversation = c;
     this.loading = true;
-    this.error = null;
+    this.messageLoadError = null;
     try {
       this.messages = await this.chatHttp.getMessages(c.id, 0, 50);
-      await this.chatSignalr.joinConversation(c.id);
+      this.messageLoadError = null;
+      try {
+        await this.chatSignalr.joinConversation(c.id);
+      } catch {
+        // best-effort; do not block message display
+      }
     } catch (e: any) {
-      this.error = 'Failed to load messages for this conversation.';
+      this.messageLoadError = 'Failed to load messages for this conversation.';
     } finally {
       this.loading = false;
     }
@@ -128,5 +134,21 @@ export class ChatPageComponent implements OnInit, OnDestroy {
   getConversationDisplayName(conversation: ConversationDto): string {
     const user = this.users.find(u => u.id === conversation.otherUserId);
     return user ? `${user.displayName} (${user.userName})` : conversation.otherUserId;
+  }
+
+  getSenderDisplayName(senderUserId: string): string {
+    const user = this.users.find(u => u.id === senderUserId);
+    if (user) return user.userName;
+
+    if (this.selectedConversation?.otherUserId === senderUserId) {
+      return this.getConversationDisplayName(this.selectedConversation);
+    }
+
+    return senderUserId;
+  }
+
+  toLocalDate(value: string): Date {
+    // backend sends ISO string (UTC). Date pipe will display local time.
+    return new Date(value);
   }
 }

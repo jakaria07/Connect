@@ -24,7 +24,6 @@ public class UserLookupAppService : ConnectAppService, IUserLookupAppService
         var users = await _userRepository.GetListAsync();
 
         return users
-            .Where(u => currentUserId == null || u.Id != currentUserId)
             .OrderBy(u => u.UserName)
             .Select(u => new UserLookupDto
             {
