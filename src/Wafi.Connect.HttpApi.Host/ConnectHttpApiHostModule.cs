@@ -39,6 +39,8 @@ using Volo.Abp.OpenIddict;
 using Volo.Abp.Swashbuckle;
 using Volo.Abp.Studio.Client.AspNetCore;
 using Volo.Abp.Security.Claims;
+using Wafi.Connect.SignalR;
+using Microsoft.AspNetCore.Routing;
 
 namespace Wafi.Connect;
 
@@ -118,6 +120,20 @@ public class ConnectHttpApiHostModule : AbpModule
         ConfigureSwagger(context, configuration);
         ConfigureVirtualFileSystem(context);
         ConfigureCors(context, configuration);
+        ConfigureSignalR(context);
+    }
+
+    private void ConfigureSignalR(ServiceConfigurationContext context)
+    {
+        context.Services.AddSignalR();
+
+        context.Services.Configure<AbpEndpointRouterOptions>(options =>
+        {
+            options.EndpointConfigureActions.Add(endpointContext =>
+            {
+                endpointContext.Endpoints.MapHub<ChatHub>("/signalr/chat");
+            });
+        });
     }
 
     private void ConfigureAuthentication(ServiceConfigurationContext context)

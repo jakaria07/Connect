@@ -14,6 +14,7 @@ using Volo.Abp.SettingManagement.EntityFrameworkCore;
 using Volo.Abp.OpenIddict.EntityFrameworkCore;
 using Volo.Abp.TenantManagement;
 using Volo.Abp.TenantManagement.EntityFrameworkCore;
+using Wafi.Connect.Chat;
 
 namespace Wafi.Connect.EntityFrameworkCore;
 
@@ -27,7 +28,8 @@ public class ConnectDbContext :
 {
     /* Add DbSet properties for your Aggregate Roots / Entities here. */
 
-
+    public DbSet<Conversation> Conversations { get; set; }
+    public DbSet<Message> Messages { get; set; }
     #region Entities from the modules
 
     /* Notice: We only implemented IIdentityProDbContext and ISaasDbContext
@@ -81,11 +83,35 @@ public class ConnectDbContext :
         
         /* Configure your own tables/entities inside here */
 
-        //builder.Entity<YourEntity>(b =>
-        //{
-        //    b.ToTable(ConnectConsts.DbTablePrefix + "YourEntities", ConnectConsts.DbSchema);
-        //    b.ConfigureByConvention(); //auto configure for the base class props
-        //    //...
-        //});
+        builder.Entity<Conversation>(b =>
+        {
+            b.ToTable("conversations", ConnectConsts.DbSchema);
+            b.ConfigureByConvention();
+            
+            b.Property(x => x.User1Id).IsRequired();
+            b.Property(x => x.User2Id).IsRequired();
+            b.Property(x => x.IsArchived).HasDefaultValue(false);
+            
+            b.HasIndex(x => x.User1Id);
+            b.HasIndex(x => x.User2Id);
+            b.HasIndex(x => new { x.User1Id, x.User2Id }).IsUnique();
+        });
+
+        builder.Entity<Message>(b =>
+        {
+            b.ToTable("messages", ConnectConsts.DbSchema);
+            b.ConfigureByConvention();
+            
+            b.Property(x => x.ConversationId).IsRequired();
+            b.Property(x => x.SenderUserId).IsRequired();
+            b.Property(x => x.Text).IsRequired().HasMaxLength(4000);
+            
+            b.HasOne(x => x.Conversation)
+                .WithMany()
+                .HasForeignKey(x => x.ConversationId)
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            b.HasIndex(x => new { x.ConversationId, x.CreationTime });
+        });
     }
 }

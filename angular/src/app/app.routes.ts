@@ -8,6 +8,10 @@ export const APP_ROUTES: Routes = [
     loadComponent: () => import('./home/home.component').then(c => c.HomeComponent),
   },
   {
+    path: 'chat',
+    loadChildren: () => import('./chat/chat.routes').then(m => m.CHAT_ROUTES),
+  },
+  {
     path: 'account',
     loadChildren: () => import('@abp/ng.account').then(c => c.createRoutes()),
   },

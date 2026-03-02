@@ -1,0 +1,40 @@
+<div class="chat-layout">
+  <div class="chat-sidebar">
+    <h3>Conversations</h3>
+
+    <div class="chat-conversation"
+         *ngFor="let c of conversations"
+         (click)="selectConversation(c)"
+         [class.active]="selectedConversation?.id === c.id">
+      <div class="chat-conversation-title">{{ c.otherUserId }}</div>
+      <div class="chat-conversation-meta">{{ c.creationTime | date:'short' }}</div>
+    </div>
+  </div>
+
+  <div class="chat-main">
+    <ng-container *ngIf="selectedConversation; else emptyState">
+      <div class="chat-header">
+        <div>Conversation: {{ selectedConversation?.id }}</div>
+      </div>
+
+      <div class="chat-messages">
+        <div class="chat-message" *ngFor="let m of messages">
+          <div class="chat-message-meta">
+            <span class="sender">{{ m.senderUserId }}</span>
+            <span class="time">{{ m.creationTime | date:'short' }}</span>
+          </div>
+          <div class="chat-message-text">{{ m.text }}</div>
+        </div>
+      </div>
+
+      <div class="chat-input">
+        <input [(ngModel)]="messageText" placeholder="Type a message..." />
+        <button (click)="send()">Send</button>
+      </div>
+    </ng-container>
+
+    <ng-template #emptyState>
+      <div class="chat-empty">Select a conversation to start chatting.</div>
+    </ng-template>
+  </div>
+</div>

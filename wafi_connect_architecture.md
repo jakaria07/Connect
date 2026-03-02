@@ -59,6 +59,7 @@ This is a clean, layered ABP architecture for 1:1 real-time chat with PostgreSQL
   - `SenderUserId` (Guid)
   - `Text` (string)
   - `CreationTime`
+  - Navigation property: `Conversation`
 
 ### 2.2 Domain rules
 
@@ -82,6 +83,13 @@ This is a clean, layered ABP architecture for 1:1 real-time chat with PostgreSQL
 - **`ConversationAppService`**
   - `CreateConversationAsync(CreateConversationDto)`
   - `GetMyConversationsAsync()`
+
+CreateConversationAsync flow:
+
+- Order user IDs (smaller Guid → User1Id, larger Guid → User2Id)
+- Check repository for existing conversation by ordered pair
+- If exists → return existing conversation
+- If not → create new conversation
 
 - **`MessageAppService`**
   - `SendMessageAsync(SendMessageDto)`
@@ -161,6 +169,7 @@ This is a clean, layered ABP architecture for 1:1 real-time chat with PostgreSQL
 - `JoinConversation(conversationId)`
 - `LeaveConversation(conversationId)`
 - Authentication via ABP token.
+- Before adding a connection to a conversation group, validate that the current user belongs to that conversation.
 
 ### 6.3 Real-time push
 

@@ -10,6 +10,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Wafi.Connect.Application.Contracts\Wafi.Connect.Application.Contracts.csproj" />
+    <ProjectReference Include="..\Wafi.Connect.Application\Wafi.Connect.Application.csproj" />
+    <ProjectReference Include="..\Wafi.Connect.Domain\Wafi.Connect.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
   <ItemGroup>
