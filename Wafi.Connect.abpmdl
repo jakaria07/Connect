@@ -1,0 +1,109 @@
+{
+  "template": "app",
+  "imports": {
+    "Volo.Abp.LeptonXLiteTheme": {
+      "version": "5.0.1",
+      "isInstalled": true,
+      "creationTime": "03/01/2026 20:25:51 +00:00"
+    },
+    "Volo.Abp.Account": {
+      "version": "10.0.1",
+      "isInstalled": true,
+      "creationTime": "03/01/2026 20:25:51 +00:00"
+    },
+    "Volo.Abp.OpenIddict": {
+      "version": "10.0.1",
+      "isInstalled": true,
+      "creationTime": "03/01/2026 20:25:51 +00:00"
+    },
+    "Volo.Abp.Identity": {
+      "version": "10.0.1",
+      "isInstalled": true,
+      "creationTime": "03/01/2026 20:25:51 +00:00"
+    },
+    "Volo.Abp.TenantManagement": {
+      "version": "10.0.1",
+      "isInstalled": true,
+      "creationTime": "03/01/2026 20:25:51 +00:00"
+    },
+    "Volo.Abp.SettingManagement": {
+      "version": "10.0.1",
+      "isInstalled": true,
+      "creationTime": "03/01/2026 20:25:51 +00:00"
+    },
+    "Volo.Abp.PermissionManagement": {
+      "version": "10.0.1",
+      "isInstalled": true,
+      "creationTime": "03/01/2026 20:25:51 +00:00"
+    },
+    "Volo.Abp.FeatureManagement": {
+      "version": "10.0.1",
+      "isInstalled": true,
+      "creationTime": "03/01/2026 20:25:51 +00:00"
+    }
+  },
+  "folders": {
+    "items": {
+      "src": {},
+      "test": {}
+    }
+  },
+  "packages": {
+    "Wafi.Connect.Application": {
+      "path": "src/Wafi.Connect.Application/Wafi.Connect.Application.abppkg",
+      "folder": "src"
+    },
+    "Wafi.Connect.Application.Tests": {
+      "path": "test/Wafi.Connect.Application.Tests/Wafi.Connect.Application.Tests.abppkg",
+      "folder": "test"
+    },
+    "Wafi.Connect.Domain.Shared": {
+      "path": "src/Wafi.Connect.Domain.Shared/Wafi.Connect.Domain.Shared.abppkg",
+      "folder": "src"
+    },
+    "Wafi.Connect.Application.Contracts": {
+      "path": "src/Wafi.Connect.Application.Contracts/Wafi.Connect.Application.Contracts.abppkg",
+      "folder": "src"
+    },
+    "Wafi.Connect.HttpApi": {
+      "path": "src/Wafi.Connect.HttpApi/Wafi.Connect.HttpApi.abppkg",
+      "folder": "src"
+    },
+    "Wafi.Connect.HttpApi.Client": {
+      "path": "src/Wafi.Connect.HttpApi.Client/Wafi.Connect.HttpApi.Client.abppkg",
+      "folder": "src"
+    },
+    "Wafi.Connect.EntityFrameworkCore.Tests": {
+      "path": "test/Wafi.Connect.EntityFrameworkCore.Tests/Wafi.Connect.EntityFrameworkCore.Tests.abppkg",
+      "folder": "test"
+    },
+    "Wafi.Connect.EntityFrameworkCore": {
+      "path": "src/Wafi.Connect.EntityFrameworkCore/Wafi.Connect.EntityFrameworkCore.abppkg",
+      "folder": "src"
+    },
+    "Wafi.Connect.TestBase": {
+      "path": "test/Wafi.Connect.TestBase/Wafi.Connect.TestBase.abppkg",
+      "folder": "test"
+    },
+    "Wafi.Connect.Domain.Tests": {
+      "path": "test/Wafi.Connect.Domain.Tests/Wafi.Connect.Domain.Tests.abppkg",
+      "folder": "test"
+    },
+    "Wafi.Connect.HttpApi.Client.ConsoleTestApp": {
+      "path": "test/Wafi.Connect.HttpApi.Client.ConsoleTestApp/Wafi.Connect.HttpApi.Client.ConsoleTestApp.abppkg",
+      "folder": "test"
+    },
+    "Wafi.Connect.DbMigrator": {
+      "path": "src/Wafi.Connect.DbMigrator/Wafi.Connect.DbMigrator.abppkg",
+      "folder": "src"
+    },
+    "Wafi.Connect.HttpApi.Host": {
+      "path": "src/Wafi.Connect.HttpApi.Host/Wafi.Connect.HttpApi.Host.abppkg",
+      "folder": "src"
+    },
+    "Wafi.Connect.Domain": {
+      "path": "src/Wafi.Connect.Domain/Wafi.Connect.Domain.abppkg",
+      "folder": "src"
+    }
+  }
+}
