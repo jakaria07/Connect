@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Volo.Abp.Data;
@@ -8,10 +8,15 @@ using Volo.Abp.Uow;
 
 namespace Wafi.Connect.Identity.Data;
 
+// IDataSeedContributor → ABP knows to call this class during seeding.
+// ITransientDependency → ABP will automatically register this class to the dependency injection system with a transient lifetime.  
 public class DemoUsersDataSeedContributor : IDataSeedContributor, ITransientDependency
 {
-    private readonly IdentityUserManager _userManager;
-    private readonly IIdentityUserRepository _userRepository;
+    private readonly IdentityUserManager _userManager; // IdentityUserManager = high-level service that knows
+                                                       // how to create users safely (hashes passwords, validates,
+                                                       // raises events…)
+    private readonly IIdentityUserRepository _userRepository; // IIdentityUserRepository = low-level repository that
+                                                              // allows us to query users directly (without any logic)
 
     public DemoUsersDataSeedContributor(
         IdentityUserManager userManager,
@@ -21,7 +26,7 @@ public class DemoUsersDataSeedContributor : IDataSeedContributor, ITransientDepe
         _userRepository = userRepository;
     }
 
-    [UnitOfWork]
+    [UnitOfWork]  // Ensures that all operations in this method are executed within a single database transaction.  If creating 3 users fails halfway, nothing is saved
     public virtual async Task SeedAsync(DataSeedContext context)
     {
         await EnsureUserAsync("alice", "alice@connect.local", "Demo12345!");
